@@ -5,6 +5,13 @@ import { Server } from 'socket.io';
 import onoff from 'onoff';
 
 var relais = new onoff.Gpio(17+512, 'out'); //use GPIO pin 17, and specify that it is output
+
+var input18 = new onoff.Gpio(18+512, 'in', 'both');
+console.log('watch input 18')
+input18.watch((err,value) => {console.log(`input18 changed to ${value}`)});
+setInterval(() => {console.log(`input18 is ${input18.readSync()}`)},5000);
+
+
 console.log(relais);
 const app = express();
 const server = createServer(app);
