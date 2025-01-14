@@ -4,7 +4,7 @@ import path from 'path';
 import { Server } from 'socket.io';
 import onoff from 'onoff';
 
-var relais17 = new onoff.Gpio(17 +512, 'out');
+var relais17 = new onoff.Gpio(17 +512, 'in','both');
 var input22 = new onoff.Gpio(22 +512, 'in', 'both');
 var input27 = new onoff.Gpio(27 +512, 'in', 'both');
 
