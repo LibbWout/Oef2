@@ -1,28 +1,16 @@
-const socket = io();
-
-    const togglebutton = document.getElementById('toggle-relais')
-    const form = document.getElementById('form');
-    const input = document.getElementById('input');
-    const messages = document.getElementById('messages');
-
-    togglebutton.addEventListener('click' ,(e) => {
-        e.preventDefault();
-        console.log('toggle');
-        socket.emit('toggle');
+// Haal de status op wanneer de pagina wordt geladen
+function updateGpioStatus() {
+  fetch('/gpio-status')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('gpio17-status').textContent = data.gpio17 === 1 ? 'ON' : 'OFF';
+      document.getElementById('gpio22-status').textContent = data.gpio22 === 1 ? 'ON' : 'OFF';
+      document.getElementById('gpio27-status').textContent = data.gpio27 === 1 ? 'ON' : 'OFF';
     })
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (input.value) {
-        socket.emit('chat message', input.value);
-        input.value = '';
-      }
+    .catch(error => {
+      console.error('Error fetching GPIO status:', error);
     });
+}
 
-    socket.on('chat message', (msg) => {
-    const item = document.createElement('li');
-    item.textContent = msg;
-    messages.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
-  });
-  
+// Haal de status op bij het laden van de pagina
+updateGpioStatus();

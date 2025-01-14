@@ -4,18 +4,23 @@ import path from 'path';
 import { Server } from 'socket.io';
 import onoff from 'onoff';
 
-var relais = new onoff.Gpio(17+512, 'out'); //use GPIO pin 17, and specify that it is output
+var relais17 = new onoff.Gpio(17 +512, 'out');
+var input22 = new onoff.Gpio(22 +512, 'in', 'both');
+var input27 = new onoff.Gpio(27 +512, 'in', 'both');
 
-var input18 = new onoff.Gpio(18+512, 'in', 'both');
-console.log('watch input 18')
-input18.watch((err,value) => {console.log(`input18 changed to ${value}`)});
-setInterval(() => {console.log(`input18 is ${input18.readSync()}`)},5000);
-
-
-console.log(relais);
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
+
+// Route om de status van de GPIO-pinnen op te halen
+app.get('/gpio-status', (req, res) => {
+  const status = {
+    gpio17: relais17.readSync(),
+    gpio22: input22.readSync(),
+    gpio27: input27.readSync(),
+  };
+  res.json(status);  // retourneer de status als JSON
+});
 
 app.get('/', (req, res) => {
   res.sendFile(path.resolve('./public/index.html'));
@@ -23,28 +28,6 @@ app.get('/', (req, res) => {
 
 app.get('/script.js', (req, res) => {
   res.sendFile(path.resolve('./public/script.js'));
-});
-
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  socket.on('disconnect',()=> {
-    console.log('a user is disconnected')
-  });
-  socket.on('toggle', (msg) =>
-  {
-  if (relais.readSync() === 0) { //check the pin state, if the state is 0 (or off)
-      relais.writeSync(1);
-      console.log('set pin state to 1 (turn LED on)');
-    } else {
-      relais.writeSync(0);
-      console.log('set pin state to 0 (turn LED off)');
-    }  
-  });
-  socket.on('chat message', (msg) => 
-  {
-    console.log(`message is ${msg}`);
-    io.emit('chat message', msg);
-  });
 });
 
 server.listen(3000, () => {
